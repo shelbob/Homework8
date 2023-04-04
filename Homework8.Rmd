@@ -46,20 +46,20 @@ library(tidyverse)
 # place the code for your answer here
 
 A = (Iowa_Liquor_Stores)
-head(A)
 dim(A)
+
 unique(A$State)
+
 A1=dplyr::filter(A, State=="IA")
-head(A1)
 unique(A1$City)
+
 A1$Inactive <- ifelse(A1$`Store Status` == "I", TRUE, FALSE) 
 count(A1, Inactive == "TRUE")
 A2=A1 %>% group_by(City) %>% summarise(
   n=n(),
   unactive = mean(Inactive))
-print(A2)
-A2 %>% arrange(n)
-tail(A2, 10)
+  
+A2 %>% arrange(desc(n))
 ```
 
 ### Question #2 (15 points)
@@ -78,10 +78,13 @@ A3 =dplyr::filter(A1, `Store Status`=="A")
 A4 = A3%>% group_by(City)  %>% summarise(
   n=n())
 print(A4)
+
 A5 =dplyr::filter(A4, n>=40)
 print(A5)
+
 as.factor(A5$City)
-ggplot(A5, aes(x = n), fill="City") + geom_bar()
+ggplot(A5, aes(y = n), fill="City") + geom_bar()
+#all correct except for the barplot
 ```
 
 ### Question #3 (20 points)
