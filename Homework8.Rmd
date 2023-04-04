@@ -147,7 +147,17 @@ Use ggplot2, draw a scatter plot of the location of all active liquor stores in 
 A.location1 = A.company %>% separate('Store Address', into = c("Address", "Location"), sep = "\n\\(")
 A.location2 = A.location1 %>% separate(Location, into = c("Latitude", "Longitude"), sep = ",") %>% select(-Address)
 A.location = A.location2 %>% separate(Longitude, into = c("Longitude", "drop"), sep = "\\)") %>% select(-drop)
-ggplot(A.location, aes(x=Latitude, y=Longitude, colour=company)) + geom_dotplot()
+#original adding question requirements 
+
+A.location$Longitude = as.factor(A.location$Longitude)
+A.location$Latitude=  as.factor(A.location$Latitude)
+A.location$company = as.factor(A.location$company)
+
+str(A.location)
+
+ggplot(A.location, aes(x=Latitude, y=Longitude, fill(A.location$company))) + geom_dotplot()
+
+#graph not working, even though changed to factor
 ```
 
 <br>
@@ -165,4 +175,6 @@ Note that: **Don't knit your Rmarkdown file often.** It will be slow since this 
 
 ```{r, message = FALSE}
 # place the code for your answer here
+
+
 ```
