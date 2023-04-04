@@ -60,6 +60,8 @@ A2=A1 %>% group_by(City) %>% summarise(
   unactive = mean(Inactive))
   
 A2 %>% arrange(desc(n))
+
+#Done
 ```
 
 ### Question #2 (15 points)
@@ -70,21 +72,22 @@ A2 %>% arrange(desc(n))
 _ Make `City` variable as a factor.  
 - Using ggplot2, draw a bar plot that shows the number of the liquor stores for those selected cities with no less than 40 active stores. Make sure the levels of the cities are ordered based on the number of stores.
 
-*FIX*
 
 ```{r, message = FALSE}
 # place the code for your answer here
 A3 =dplyr::filter(A1, `Store Status`=="A")
 A4 = A3%>% group_by(City)  %>% summarise(
-  n=n())
+  n=n()) %>% arrange(desc(n))
 print(A4)
 
-A5 =dplyr::filter(A4, n>=40)
+A5 =dplyr::filter(A4, n>=40) 
 print(A5)
 
 as.factor(A5$City)
-ggplot(A5, aes(y = n), fill="City") + geom_bar()
-#all correct except for the barplot
+A5 %>% mutate(City.reorder = factor(City, levels(reorder(City, n, median, na.rm = TRUE)))) 
+ggplot(A5, aes(x=City), ) + geom_bar(aes(weight = n))
+#all correct except for the barplot, reorder isn't working
+
 ```
 
 ### Question #3 (20 points)
@@ -95,22 +98,37 @@ A.company = A %>% separate(Name, into = c("company", "name2"), sep = " ") %>% se
 ```
 Identify the top four companies with the most number of active stores in Iowa. Rename all other stores (other than the top four companies) as "other" for the variable `company`.
 
+The top four companies are Casey's, Hy-Vee, Kum, and Fareway. 
+
 - Create a new data set only include the stores from those four companies and the cities with no less than 40 active stores. Order the level of the companies by their total number of stores.  
 - Using the new data set, make a bar chart to compare the number of stores for those four companies for the cities with no less than 40 active stores. Please use different color to identify the four companies, and use the `dodge` option for the bar chart.
 
 ```{r}
 A.company = A1 %>% separate(Name, into = c("company", "name2"), sep = " ") %>% select(-name2)
-A.company %>% group_by(company) %>% summarise(
-  n=n()) %>% arrange(., n)
+
+Q3=A.company %>% group_by(company) %>% summarise(
+  n=n()) %>% arrange(desc(n))
 print(Q3)
-Q4 = Q3 %>% filter(company %in% c("Casey's","Hy-Vee","Kum"))
-print(Q4)
-Q5 = Q4%>% group_by(City)  %>% summarise(
-  n=n())
-Q6 =dplyr::filter(Q5, n>=40)
 
-ggplot(Q6, aes(x=stores, fill=company)) + geom_bar(aes(weight=count), position="dodge")
+#Q3 is only identifying active stores
 
+A.company=#sort to have "other"
+  
+Q5=A.company %>% filter(company %in% c("Casey's", "Hy-Vee", "Kum", "Fareway")) %>% filter(City %in% c("Cedar Rapids","Council Bluffs","Davenport","Des Moines","Dubuque" ))
+
+print(Q5)
+#Q5 is identifying the companies in the top cities with no less than 40 active stores
+
+Q6 = Q5%>% group_by(company)  %>% summarise(
+  n=n()) %>% arrange(desc(n))
+print(Q6)
+  
+#Q6 is the arranged print of Q5 summarizing the number of stores in only the selected towns
+
+ggplot(Q5, aes(x=City, fill=company), position = "dodge") + geom_bar()
+#with new data set, make bar chart to compare, with a new color for the different companies with dodge on
+
+#done
 ```
 
 
