@@ -84,10 +84,16 @@ A5 =dplyr::filter(A4, n>=40)
 print(A5)
 
 as.factor(A5$City)
-A5 %>% mutate(City.reorder = factor(City, levels(reorder(City, n, median, na.rm = TRUE)))) 
-ggplot(A5, aes(x=City), ) + geom_bar(aes(weight = n))
-#all correct except for the barplot, reorder isn't working
 
+
+A5 %>% mutate(City.reorder = factor(City, levels(reorder(City, n, median, na.rm = TRUE)))) 
+
+ggplot(filter(A5, City %in% c("Cedar Rapids", "Des Moines", "Davenport", "Council Bluffs", "Dubuque")), aes(x=City)) + geom_bar(aes(weight = n))
+
+ggplot(A5, aes(x=City)) + geom_bar(aes(weight = n))
+
+#all correct except for the barplot, reorder isn't working
+#will run when you don't make a new variable defining city as a factor, but once you do it says the reorder cannot work with factors. 
 ```
 
 ### Question #3 (20 points)
@@ -104,17 +110,19 @@ The top four companies are Casey's, Hy-Vee, Kum, and Fareway.
 - Using the new data set, make a bar chart to compare the number of stores for those four companies for the cities with no less than 40 active stores. Please use different color to identify the four companies, and use the `dodge` option for the bar chart.
 
 ```{r}
-A.company = A1 %>% separate(Name, into = c("company", "name2"), sep = " ") %>% select(-name2)
+stores1 = A3 %>% separate(Name, into = c("company", "name2"), sep = " ") %>% select(-name2)
 
-Q3=A.company %>% group_by(company) %>% summarise(
+Q3=stores1 %>% group_by(company) %>% summarise(
   n=n()) %>% arrange(desc(n))
 print(Q3)
 
 #Q3 is only identifying active stores
 
-A.company=#sort to have "other"
+stores1=#sort to have "other"
+#need to make this extra variable
   
-Q5=A.company %>% filter(company %in% c("Casey's", "Hy-Vee", "Kum", "Fareway")) %>% filter(City %in% c("Cedar Rapids","Council Bluffs","Davenport","Des Moines","Dubuque" ))
+  
+Q5=stores1 %>% filter(company %in% c("Casey's", "Hy-Vee", "Kum", "Fareway")) %>% filter(City %in% c("Cedar Rapids","Council Bluffs","Davenport","Des Moines","Dubuque" ))
 
 print(Q5)
 #Q5 is identifying the companies in the top cities with no less than 40 active stores
@@ -144,20 +152,19 @@ Use ggplot2, draw a scatter plot of the location of all active liquor stores in 
 
 ```{r, message = FALSE}
 # place the code for your answer here
-A.location1 = A.company %>% separate('Store Address', into = c("Address", "Location"), sep = "\n\\(")
+A.location1 = stores1 %>% separate('Store Address', into = c("Address", "Location"), sep = "\n\\(")
 A.location2 = A.location1 %>% separate(Location, into = c("Latitude", "Longitude"), sep = ",") %>% select(-Address)
 A.location = A.location2 %>% separate(Longitude, into = c("Longitude", "drop"), sep = "\\)") %>% select(-drop)
 #original adding question requirements 
 
-A.location$Longitude = as.factor(A.location$Longitude)
-A.location$Latitude=  as.factor(A.location$Latitude)
-A.location$company = as.factor(A.location$company)
+A.location$Longitude = as.numeric(A.location$Longitude)
+A.location$Latitude=  as.numeric(A.location$Latitude)
+
 
 str(A.location)
 
-ggplot(A.location, aes(x=Latitude, y=Longitude, fill(A.location$company))) + geom_dotplot()
+ggplot(A.location, aes(x=Latitude, y=Longitude, color=company)) + geom_point()
 
-#graph not working, even though changed to factor
 ```
 
 <br>
@@ -174,7 +181,24 @@ Note that: **Don't knit your Rmarkdown file often.** It will be slow since this 
 - Draw a scatter plot for the trend of total sale over month. Please separate the trend for different years. You need to use `color` option in ggplot2.
 
 ```{r, message = FALSE}
-# place the code for your answer here
+W1=Story_County_Liquor_Sales_New
+
+W1$Volume.Sold..Liters. <- as.numeric(W1$Volume.Sold..Liters.)
+W1$Sale..Dollars. <- as.numeric(W1$Sale..Dollars.)
+
+W1 <- W1 %>%filter(City %in% c("Ames"))
+W2 = W1 %>% separate(Date, into = c("Month", "Day", "Year"), sep = "/")
+
+W2$Month=as.factor(W2$Month)
+W2$Year=as.factor(W2$Year)
+
+#W3 = W2 %>% group_by(Year) %>% group_by(Month) %>% summarise(Volume.Sold..Gallons.) not working
+
+print(W2)
+
+ggplot(W2, aes(x=Month, y=Sale..Dollars., color=Year)) + geom_point()
+
+#might not be total sales, could be each instance of sales in a month
 
 
 ```
